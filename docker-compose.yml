@@ -1,33 +1,43 @@
-version: "2"
+version: "3.8"
 services:
   plex:
     image: linuxserver/plex:latest
     container_name: plex
+    network_mode: host
     environment:
       - PUID=1000
       - PGID=1000
       - VERSION=docker
     volumes:
-      - ~/docker-services/plex/config:/config
+      - /opt/media-server/docker-services/plex/config:/config
       - /media:/media
     ports:
       - 32400:32400
     restart: unless-stopped
-  transmission:
-    image: linuxserver/transmission
-    container_name: transmission
+  transmission-openvpn:
+    image: haugene/transmission-openvpn
+    container_name: transmission-openvpn 
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Australia/Perth
-      - TRANSMISSION_WEB_HOME=/combustion-release/ #optional
+      - PUID=997
+      - PGID=998
+      - ENABLE_UFW=false #optional but useful for debugging
+      - UFW_EXTRA_PORTS=22,32400,9091,8989,7878,9117
+      - OPENVPN_PROVIDER=PROTONVPN
+      - OPENVPN_CONFIG=us.protonvpn.com.udp
+      - OPENVPN_USERNAME=*****
+      - OPENVPN_PASSWORD=*****
+      - LOCAL_NETWORK=****
+    cap_add:
+      - NET_ADMIN
+    logging:
+       driver: json-file
+       options:
+           max-size: 10m
     volumes:
-      - ~/docker-services/transmission/config:/config
-      - /media/torrents:/media/torrents
+      - /media/torrent/:/data
+      - /opt/media-server/docker-services/transmission-openvpn/config:/config
     ports:
       - 9091:9091
-      - 49153:49153
-      - 49153:49153/udp
     restart: unless-stopped
   jackett:
     image: linuxserver/jackett
@@ -35,11 +45,10 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=Australia/Perth
-      - RUN_OPTS=run options here #optional
+      - TZ=Africa/Bangui
     volumes:
-      - ~/docker-services/jackett/config:/config
-      - /media/torrents/completed:/downloads
+      - /opt/media-server/docker-services/jackett/config:/config
+      - /media/torrent/completed:/downloads
     ports:
       - 9117:9117
     restart: unless-stopped
@@ -49,11 +58,12 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=Australia/Perth
+      - TZ=Africa/Bangui
       - UMASK_SET=022 #optional
     volumes:
-      - ~/docker-services/sonarr/config:/config
+      - /opt/media-server/docker-services/sonarr/config:/config
       - /media:/media
+      - /media/torrent:/data
     ports:
       - 8989:8989
     restart: unless-stopped
@@ -63,10 +73,12 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=Australia/Perth
+      - TZ=Africa/Bangui
+      - UMASK_SET=022 #optional
     volumes:
-      - ~/docker-services/radarr/config:/config
+      - /opt/media-server/docker-services/radarr/config:/config
       - /media:/media
+      - /media/torrent/:/data
     ports:
       - 7878:7878
     restart: unless-stopped
@@ -76,10 +88,11 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=PST
+      - TZ=Africa/Bangui
       - BASE_URL=/ombi #optional
     volumes:
-      - ~/docker-services/ombi/config:/config
+      - /opt/media-server/docker-services/ombi/config:/config
+      - /media:/media
     ports:
       - 3579:3579
     restart: unless-stopped
