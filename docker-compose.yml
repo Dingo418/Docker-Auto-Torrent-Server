@@ -14,30 +14,32 @@ services:
     ports:
       - 32400:32400
     restart: unless-stopped
-  transmission-openvpn:
+   transmission-openvpn:
     image: haugene/transmission-openvpn
     container_name: transmission-openvpn 
     environment:
       - PUID=997
       - PGID=998
-      - ENABLE_UFW=false #optional but useful for debugging
-      - UFW_EXTRA_PORTS=22,32400,9091,8989,7878,9117
+      - TZ=UTC
+      - ENABLE_UFW=true #optional but useful for debugging
       - OPENVPN_PROVIDER=PROTONVPN
       - OPENVPN_CONFIG=us.protonvpn.com.udp
-      - OPENVPN_USERNAME=*****
-      - OPENVPN_PASSWORD=*****
-      - LOCAL_NETWORK=****
+      - OPENVPN_USERNAME=***USERNAME***
+      - OPENVPN_PASSWORD=***PASSWORD***
+      - LOCAL_NETWORK=***
+    volumes:
+      - /media/torrent/:/data
+      - /opt/media-server/docker-services/transmission-openvpn/config:/config
     cap_add:
       - NET_ADMIN
     logging:
        driver: json-file
        options:
            max-size: 10m
-    volumes:
-      - /media/torrent/:/data
-      - /opt/media-server/docker-services/transmission-openvpn/config:/config
     ports:
       - 9091:9091
+      - 49153:49153
+      - 49153:49153/udp
     restart: unless-stopped
   jackett:
     image: linuxserver/jackett
