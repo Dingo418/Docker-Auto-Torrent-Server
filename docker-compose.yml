@@ -22,6 +22,7 @@ services:
       - PGID=998
       - TZ=UTC
       - ENABLE_UFW=true #optional but useful for debugging
+      - UFW_EXTRA_PORTS=9091,8989,7878,32400,3479
       - OPENVPN_PROVIDER=PROTONVPN
       - OPENVPN_CONFIG=us.protonvpn.com.udp
       - OPENVPN_USERNAME=***USERNAME***
