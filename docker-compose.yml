@@ -14,7 +14,7 @@ services:
     ports:
       - 32400:32400
     restart: unless-stopped
-   transmission-openvpn:
+  transmission-openvpn:
     image: haugene/transmission-openvpn
     container_name: transmission-openvpn 
     environment:
