@@ -17,6 +17,7 @@ services:
       - 9091:9091
       - 51413:51413
       - 51413:51413/udp
+      - 8191:8191
     restart: unless-stopped
   plex:
     image: lscr.io/linuxserver/plex:latest
@@ -99,5 +100,18 @@ services:
       - /media/config/ombi:/config
       - /media:/media
       - /media/torrent:/config/qBittorrent
+    network_mode: "service:gluetun"
+    restart: unless-stopped
+  flaresolverr:
+    # DockerHub mirror flaresolverr/flaresolverr:latest
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_HTML=${LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+      - TZ=Africa/Abidjan
+      - PUID=1000
+      - PGID=1000
     network_mode: "service:gluetun"
     restart: unless-stopped
